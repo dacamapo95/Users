@@ -1,0 +1,62 @@
+﻿@model Users.Shared.CreateUserRequest
+
+<h1 class="my-4">Create User</h1>
+
+<form asp-action="Create" method="post" class="needs-validation" novalidate>
+    <div class="mb-3">
+        <label asp-for="UserName" class="form-label">UserName</label>
+        <input asp-for="UserName" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label">Email</label>
+        <input asp-for="Email" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Password" class="form-label">Password</label>
+        <input asp-for="Password" type="password" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="FirstName" class="form-label">First Name</label>
+        <input asp-for="FirstName" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="SecondName" class="form-label">Second Name</label>
+        <input asp-for="SecondName" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="LastName" class="form-label">Last Name</label>
+        <input asp-for="LastName" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="SecondLastName" class="form-label">Second Last Name</label>
+        <input asp-for="SecondLastName" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>
+
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script>
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/notifications")
+        .build();
+
+    connection.start().catch(err => console.error(err.toString()));
+
+    document.querySelector('form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const form = event.target;
+
+        const formData = new FormData(form);
+        const response = await fetch(form.action, {
+            method: form.method,
+            body: formData
+        });
+
+        if (response.ok) {
+            await connection.invoke("SendMessage", "A new user has been created.");
+            window.location.href = "/Users/Index";
+        } else {
+            console.error('Error creating user');
+        }
+    });
+</script>

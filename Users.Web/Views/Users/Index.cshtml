@@ -1,0 +1,53 @@
+﻿@model List<Users.Shared.UserResponse>
+
+<h1 class="my-4">Users</h1>
+<a asp-controller="Users" asp-action="Create" class="btn btn-primary mb-3">Create New User</a>
+
+
+<div id="notificationBox" class="alert alert-info alert-dismissible fade show" role="alert">
+    <text id="notificationText" class="mb-0"></text>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+<table class="table table-striped">
+    <thead class="thead-dark">
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.UserName</td>
+                <td>@user.Email</td>
+                <td>@user.FirstName</td>
+                <td>@user.LastName</td>
+                <td>
+                    <a asp-controller="Users" asp-action="Edit" asp-route-id="@user.Id" class="btn btn-warning btn-sm">Edit</a>
+                    <form asp-controller="Users" asp-action="Delete" asp-route-id="@user.Id" method="post" style="display:inline;">
+                        <button type="submit" onclick="return confirm('Are you sure you want to delete this user?');" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script>
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/notifications")
+        .build();
+
+    connection.on("ReceiveMessage", (message) => {
+        const notificationText = document.getElementById("notificationText");
+        notificationText.textContent = message;
+    });
+
+    connection.start().catch(err => console.error(err.toString()));
+</script>
